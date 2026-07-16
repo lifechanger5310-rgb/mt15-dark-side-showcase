@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: "Bebas Neue", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  --color-ink: #0b0b0e;
+  --color-panel: #17171c;
+  --color-panel-light: #202027;
+  --color-accent: #00d9ff;
+  --color-accent-dim: #00a8c7;
+  --color-text: #f2f2f2;
+  --color-muted: #8a8a92;
+  --color-violet: #8b5cf6;
+
+  --breakpoint-xs: 24rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  .heading {
+    font-family: var(--font-heading);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow {
+    font-family: var(--font-heading);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm px-8 py-4 font-heading uppercase tracking-wider text-ink transition-transform duration-300;
+    background-color: var(--color-accent);
+    min-height: 44px;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border px-8 py-4 font-heading uppercase tracking-wider transition-colors duration-300;
+    border-color: var(--color-muted);
+    color: var(--color-text);
+    min-height: 44px;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .spec-card {
+    @apply rounded-md border p-6;
+    background-color: var(--color-panel);
+    border-color: #26262e;
+  }
+
+  .grid-lines {
+    background-image:
+      linear-gradient(to right, rgba(0, 217, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 217, 255, 0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
