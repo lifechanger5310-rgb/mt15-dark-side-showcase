@@ -229,3 +229,53 @@ next: Deploy this branch's current state to a preview so it can actually be
 can_wait: Phase 9 (Lighthouse/perf pass) — needs real content/images first
 blocked_on: none — but see "NOT verified" above before trusting this looks right
 ---
+id: 0003
+date: 2026-07-16 06:20
+claude_id: unspecified
+in_progress: Deployed a live preview of Phases 1-4 to GitHub Pages (user chose
+  GitHub Pages over Vercel).
+decided: Configured web/next.config.ts with `output: 'export'`, basePath +
+  assetPrefix set to `/mt15-dark-side-showcase` (required for a GitHub Pages
+  PROJECT site, since it's served from a subpath, not the domain root),
+  `images.unoptimized: true` (next/image optimization needs a server, static
+  export can't run one). Everything in this app is client-rendered
+  (GSAP/Lenis/R3F), so static export works with zero server dependency.
+decided: Built the static export locally (`npm run build` → `web/out/`), then
+  pushed that `out/` folder directly to a NEW branch `gh-pages-preview`
+  (separate from `rebuild/immersive-v2`, which holds the actual source code —
+  `gh-pages-preview` is a build ARTIFACT branch, not source, and will be
+  force-pushed/replaced on every future preview deploy, not built up).
+  Added a `.nojekyll` file — required or GitHub Pages' Jekyll processing
+  silently drops the `_next/` folder (starts with underscore).
+decided: Switched the repo's GitHub Pages source from `main` (branch:main,
+  path:/) to `gh-pages-preview` (branch:gh-pages-preview, path:/) via
+  `gh api -X PUT .../pages`. THIS REPLACES WHAT'S LIVE at
+  https://lifechanger5310-rgb.github.io/mt15-dark-side-showcase/ — it now
+  serves the immersive rebuild preview, not the v1 vanilla site. v1 is NOT
+  deleted (still on `main` + tag `v1-vanilla-showcase`), just not what's
+  currently being served. To revert: `gh api -X PUT
+  repos/lifechanger5310-rgb/mt15-dark-side-showcase/pages -f
+  "build_type=legacy" -f "source[branch]=main" -f "source[path]=/"`
+failed_approach: none this entry
+next: User needs to actually LOOK at
+  https://lifechanger5310-rgb.github.io/mt15-dark-side-showcase/ in a real
+  browser and report back what's broken/off before more code gets written —
+  this closes the "NOT verified" gap from entry 0002. Specifically check:
+  Lenis+sticky-nav, hero entrance timeline feel, particle field
+  visibility/performance, colorway-switch smoothness (click each of the 3
+  swatches in the Colorways section).
+  RE-DEPLOY PROCESS for any future preview update (any Claude ID can run this):
+    cd web && npm run build
+    cd ../.. && rm -rf gh-pages-preview && mkdir gh-pages-preview && cd gh-pages-preview
+    git init -q && git config user.name ... && git config user.email ...
+    cp -r ../mt15-clone/web/out/. .   (adjust path to wherever the repo clone is)
+    touch .nojekyll  (cp -r may not copy it if out/.nojekyll wasn't regenerated — always re-touch)
+    git add -A && git commit -q -m "Preview deploy: <describe what changed>"
+    git branch -M gh-pages-preview
+    export GH_TOKEN="<fresh token from user>"
+    git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/lifechanger5310-rgb/mt15-dark-side-showcase.git"
+    git push -f origin gh-pages-preview
+can_wait: Phase 5 (imagery prompts) — reasonable to do in parallel with user
+  reviewing the preview, doesn't block on visual feedback
+blocked_on: user visually reviewing the live preview URL
+---
