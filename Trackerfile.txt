@@ -1,0 +1,168 @@
+[CONFIG]
+granularity: every_step
+concurrency: parallel_worktree
+schema: structured
+created: 2026-07-16
+project: mt15-dark-side-showcase — Immersive Rebuild v2
+[/CONFIG]
+
+[CONCURRENCY NOTE]
+"Parallel" was chosen — plain append-only git is NOT safe if two Claude IDs ever
+write to this file at the exact same moment (simultaneous writes aren't caught by
+normal git conflict detection). Practice to follow:
+  1. Each Claude ID works in its own git branch/worktree, never directly pushing
+     uncommitted-elsewhere changes straight to `main`.
+  2. Branch naming: `rebuild/immersive-v2-<claude-id-or-date>` per session if working
+     concurrently; otherwise reuse `rebuild/immersive-v2` if sessions are sequential
+     (the common case).
+  3. Before starting work, pull latest `rebuild/immersive-v2` and read this file's
+     last 5 entries. If someone else's branch is ahead, merge/rebase first — don't
+     silently fork state.
+  4. Only merge to `main` (which is what GitHub Pages serves) once a phase is fully
+     working and confirmed with the user — main should always stay deployable.
+[/CONCURRENCY NOTE]
+
+[HOW TO UPDATE THIS FILE — RULES]
+- Append only. NEVER edit or delete a prior entry. If a decision changes, add a new
+  entry that supersedes it and say so explicitly (e.g. "supersedes entry 0003").
+- Always commit this file in the SAME commit as the work it describes. An entry
+  that isn't pushed doesn't help the next Claude ID.
+- `failed_approach` is the highest-value field. Log dead ends even if nothing
+  "crashed" — e.g. a library swapped out, a visual direction abandoned. This is
+  what stops the next session from repeating a mistake.
+- Every entry's `next` field must be concrete enough that a fresh Claude ID with
+  zero prior context could act on it immediately — not "continue the build" but
+  "run `npm install` in /web, then implement the ScrollTrigger pin in Hero.tsx".
+- On resuming: read the [CONFIG] block, the [AUTH & ACCESS] block, and the last
+  3-5 entries. Summarize what the previous session left off with in 2-4 sentences
+  and confirm with the user before continuing — don't silently start on something
+  different.
+
+[AUTH & ACCESS]
+This is a private GitHub account's repo (lifechanger5310-rgb). The GitHub CLI
+(`gh`) needs authentication every session — credentials do NOT persist across
+Claude sessions or even across tool calls within a session unless re-exported.
+
+DO NOT ever commit a real token value to this repo. It is public.
+
+Process for every new session:
+  1. Check auth: `gh auth status` (or `echo $GH_TOKEN` — usually empty, it resets).
+  2. If not authenticated, ask the user to generate a fresh Personal Access Token:
+     - URL: https://github.com/settings/tokens/new
+     - Scope needed: `repo` (full control of repositories) — that's the only one
+       required. `workflow` scope also needed IF deploying via GitHub Actions
+       (see Step 6 in the phase plan below).
+     - User pastes the token directly in chat as plain text (not a screenshot).
+  3. Use it ONLY as an in-session environment variable, exported fresh in every
+     bash command that needs it (env vars from `export` do NOT persist between
+     bash tool calls in this environment — re-export each time):
+       export GH_TOKEN="<pasted token>"
+     Do not write it to ~/.bashrc, a file, or any tracked path.
+  4. Once the session's git work is done, remind the user they can revoke the
+     token at https://github.com/settings/tokens if they want to rotate it.
+
+[PROJECT SPEC — decisions carried over from the original build + this rebuild]
+
+## Identity (unchanged from v1)
+archetype: Rebel/Outlaw
+fonts: Bebas Neue (heading) + Inter (body)
+base palette: ink #0B0B0E, panel #17171C, accent #00D9FF (cyan), text #F2F2F2, muted #8A8A92
+
+## NEW: Dynamic full-site color theming
+Selecting a colorway must re-tint the ENTIRE site (not just the bike image):
+  - Metallic Black  → base palette above (default state)
+  - Ice Storm Cyan   → accent intensifies, background glow/particles shift cyan
+  - Vivid Violet     → accent becomes #8B5CF6, background glow/particles shift violet
+Implementation approach: CSS custom properties on :root, swapped via a small
+React context (`ThemeProvider`), animated with GSAP color tweens (not an instant
+snap) so the transition itself feels cinematic. The R3F particle/glow layer reads
+the same context so WebGL color updates in sync with the DOM.
+
+## Reference sites (aesthetic target)
+- https://wonderland.studio/ — dark "spacey" backdrop, white line/particle fields,
+  speed-up-on-click micro-interaction, GSAP + Three.js
+- https://activetheory.net/ — full WebGL environments, GSAP + custom GLSL shaders,
+  "build the animation system before the content" philosophy
+Neither site is being copied directly — matching the FEELING (dark, particle-driven,
+scroll-scrubbed, shader-based ambient motion) applied to an MT-15 product showcase,
+not their literal layouts or content.
+
+## Locked stack (supersedes v1's plain-HTML approach)
+- Next.js + TypeScript + React (needed for React Three Fiber)
+- Tailwind CSS v4 (carried over, CSS-first @theme config)
+- GSAP + ScrollTrigger (core animation engine, scroll-scrubbed reveals + morphing)
+- Lenis (smooth-scroll wrapper) — verify early it doesn't break `position: sticky`
+  before building anything that depends on sticky (known Locomotive Scroll issue;
+  testing whether Lenis shares it)
+- React Three Fiber + @react-three/drei (ambient WebGL layer only — particles,
+  glow, shader backgrounds, image-distortion transitions — NOT a full 3D bike model)
+- Explicitly SKIPPED: Framer Motion (redundant with GSAP, adds bundle weight),
+  Scrollama (ScrollTrigger already covers this), D3.js (no data-viz on a spec sheet)
+
+## Imagery approach (supersedes "no real photos" from v1)
+No official Yamaha photography (copyright/trademark risk — this is what killed
+real-photo use in v1). Instead: AI-generated photoreal images, created by the USER
+via ChatGPT/DALL-E using prompts Claude writes. Prompts must be tuned to:
+  - The site's color theory (matches whichever colorway section they're for)
+  - Accurate MT-15 design cues (naked streetfighter stance, DeltaBox-style frame,
+    aggressive LED headlight, muscular fuel tank) WITHOUT referencing or describing
+    any specific copyrighted photograph — describe the real vehicle's public design
+    characteristics, the way a stock-photo brief would, not a copied image.
+Status: prompts not yet written — this is Phase 5 in the plan below.
+
+## ⚠️ CARRIED-OVER PITFALLS (from prior session's analysis — still apply)
+💀 OUTSTANDING → Trigger: stacking GSAP + Three.js + heavy image sequences without
+lazy-loading → Prevention: load WebGL/3D assets AFTER initial paint; keep first
+paint lightweight → Recovery: if Total Blocking Time balloons, defer non-critical
+JS with `next/dynamic({ ssr:false })`, or gate heavy scene init behind
+IntersectionObserver so it only initializes once scrolled into view. (A reference
+portfolio site hit 21s TBT front-loading WebGL — treat this as a hard failure mode,
+not a minor perf nit.)
+⚠️ MEDIUM → Trigger: ignoring prefers-reduced-motion → Prevention: gate ALL GSAP
+timelines AND the R3F canvas itself behind a reduced-motion check — for
+reduced-motion users, skip mounting the WebGL canvas entirely (not just pausing
+its animations) and fall back to a static styled layout. → Recovery: none needed
+if built in from the start; retrofitting is much harder once the canvas is wired
+into scroll state.
+
+## Phase plan (high-level — each phase becomes multiple Trackerfile entries as worked)
+1. Tag v1 as a recovery point, branch off for the rebuild — DO NOT touch `main`
+   until a phase is fully working
+2. Scaffold Next.js + TypeScript + Tailwind v4 in the new branch
+3. Port design tokens (colors/fonts) into Tailwind theme + CSS custom properties;
+   build the ThemeProvider/context for dynamic colorway theming
+4. Core layout + copy ported from v1 (hero, philosophy, specs, features, CTA,
+   footer) as plain React components first, unstyled-for-motion — motion comes
+   after structure exists, not before
+5. Imagery: write AI-image-generation prompts (color-matched per section), user
+   generates them externally, uploads back, Claude integrates + optimizes
+   (next/image, proper sizing, lazy loading)
+6. Motion layer: GSAP + ScrollTrigger scroll-scrubbed reveals, Lenis smooth scroll
+   (test against sticky positioning immediately), morphing element transitions
+7. WebGL ambient layer: R3F + drei particle/glow scene, gated behind
+   IntersectionObserver + reduced-motion check per the pitfalls above
+8. Dynamic color theming wired end-to-end (DOM + WebGL layer in sync)
+9. Performance pass: Lighthouse/TBT check, lazy-load audit, mobile test
+10. Deploy: Next.js static export → GitHub Pages (or Actions-based deploy if
+    static export can't support the WebGL canvas — verify in Phase 9)
+
+---
+id: 0001
+date: 2026-07-16 01:15
+claude_id: unspecified
+in_progress: Tracker setup + full rebuild spec written (this file)
+decided: Locked stack = Next.js/TS + Tailwind v4 + GSAP/ScrollTrigger + Lenis +
+  R3F/drei (ambient WebGL only, not a 3D bike model) — why: matches the actual
+  stacks used by both reference sites (wonderland.studio, activetheory.net), and
+  avoids redundant libraries (Framer Motion/Scrollama/D3 explicitly skipped)
+decided: Imagery will be AI-generated (user runs Claude-written prompts through
+  ChatGPT/DALL-E themselves) instead of real Yamaha photography — why: avoids
+  copyright/trademark risk that blocked real photos in v1
+failed_approach: none yet — this entry is setup only, no code written
+next: Tag current `main` as `v1-vanilla-showcase` for recovery, create
+  `rebuild/immersive-v2` branch, scaffold Next.js+TypeScript+Tailwind v4 in it
+  (Phase 1-2 of the plan above). Do not modify `main` directly.
+can_wait: Imagery prompt-writing (Phase 5) — needs Phase 2-4 done first so we know
+  final image dimensions/placements
+blocked_on: none
+---
