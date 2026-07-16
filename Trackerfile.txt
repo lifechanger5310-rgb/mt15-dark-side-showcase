@@ -279,3 +279,69 @@ can_wait: Phase 5 (imagery prompts) — reasonable to do in parallel with user
   reviewing the preview, doesn't block on visual feedback
 blocked_on: user visually reviewing the live preview URL
 ---
+id: 0004
+date: 2026-07-16 06:45
+claude_id: unspecified
+in_progress: User reviewed the Phase 1-4 preview via screenshots — confirmed
+  working: sticky nav survives Lenis scroll, colorway switching correctly
+  retints the whole page (violet swatch tested). User then asked for something
+  much closer to https://wonderland.studio/ and https://activetheory.net/
+  (full WebGL environments, bloom/glow, depth) AND real photos/GIFs instead
+  of the line-art SVG placeholder.
+decided: Was upfront with the user that 1:1 parity with Wonderland/Active
+  Theory isn't realistic in this format — those are agency sites built by
+  dedicated WebGL teams with custom 3D-scanned environments over weeks/months.
+  Instead: closed the gap as far as reasonably possible with the SAME
+  TECHNIQUES those sites use (bloom post-processing, volumetric particles,
+  mouse parallax, glowing light beams), scoped to a one-page product showcase.
+decided: Phase 5 (imagery) started — wrote 5 AI-image-generation prompts in
+  `prompts/ai-image-prompts.md` (hero shot + one per colorway + a cockpit
+  detail shot + a rear 3/4 shot), color-graded to match each site section,
+  describing the MT-15's real public design characteristics generically
+  (NOT referencing any specific copyrighted photo). User runs these through
+  ChatGPT/DALL-E themselves and uploads results back. Noted GIFs need a
+  separate video-gen tool (ChatGPT image tool is stills-only) — offered to
+  write that prompt separately if wanted, not done yet (not requested).
+decided: WebGL layer upgraded — installed @react-three/postprocessing.
+  Added: Bloom + Vignette via EffectComposer, CameraRig.tsx (subtle
+  mouse-parallax camera drift), LightBeams.tsx (7 glowing vertical planes,
+  drifting, theme-color-synced — echoes Wonderland's light-shaft look),
+  ParticleField.tsx upgraded from 1200→2600 particles with wider/deeper
+  volume (26x16x20 units, biased backward in z) and per-particle sine drift
+  instead of uniform rotation only, fog added to the scene for depth cueing.
+  Hero's placeholder box de-boxed (removed hard border/background) so the
+  WebGL environment reads through instead of looking covered by a card.
+failed_approach: Mutating `camera.position`/`camera.lookAt()` directly inside
+  useFrame in CameraRig.tsx got flagged by React 19's NEW
+  `react-hooks/immutability` lint rule ("modifying a value returned from a
+  hook is not allowed") — this is standard, correct, documented R3F usage
+  (mutating Three.js objects every frame IS what useFrame is for); the rule
+  doesn't understand Three.js's imperative object model. Suppressed with a
+  scoped eslint-disable/enable block, NOT by refactoring away from the
+  correct R3F pattern. If this keeps coming up across the R3F components,
+  consider adding a project-wide eslint override for `src/components/three/**`
+  instead of per-file disables.
+verified: `npm run build`, `npx tsc --noEmit`, `npx eslint --max-warnings 0`
+  all clean. Redeployed to gh-pages-preview (same URL as before, force-pushed).
+NOT verified (same caveat as entry 0002 — still no browser access in this
+  sandbox): whether the bloom/particle/light-beam combo actually performs
+  acceptably (this is exactly the kind of stacked-WebGL setup the
+  entry-0001 pitfall warns about — 2600 particles + bloom + vignette +
+  per-frame array mutation is meaningfully heavier than the v1 preview: watch
+  for jank/battery drain on the user's actual device, especially mobile).
+  Mouse parallax feel, bloom intensity tuning, and whether LightBeams read as
+  intentional vs. visual noise are ALL unverified aesthetic judgment calls
+  that need real eyes on them.
+next: User needs to look at the redeployed preview
+  (https://lifechanger5310-rgb.github.io/mt15-dark-side-showcase/) again and
+  report: (1) does it feel meaningfully closer to the references, (2) any
+  performance jank/lag, especially scrolling past the hero, (3) is bloom
+  too strong/weak. In parallel, user is running the Phase 5 image prompts
+  through ChatGPT — once images come back, next Claude ID should optimize +
+  wire them into Hero.tsx and Colorways.tsx, replacing the placeholder text.
+can_wait: extending AmbientScene beyond the hero into other sections (would
+  multiply the perf cost — do NOT do this until performance on just the hero
+  instance is confirmed fine)
+blocked_on: user visual review (perf + aesthetic feedback) and Phase 5 image
+  uploads
+---

@@ -97,8 +97,8 @@ export function Hero() {
         </div>
 
         <div ref={bikeRef} className="hero-bike relative opacity-0">
-          <div className="aspect-[4/3] w-full max-w-xl mx-auto rounded-lg border border-white/10 bg-panel/40 flex items-center justify-center">
-            <p className="text-muted text-sm text-center px-8 heading tracking-widest">
+          <div className="aspect-[4/3] w-full max-w-xl mx-auto flex items-center justify-center">
+            <p className="text-muted text-xs text-center px-8 heading tracking-widest backdrop-blur-sm bg-ink/30 py-3 rounded">
               Hero image slot — AI-generated MT-15 photo goes here (Phase 5)
             </p>
           </div>
