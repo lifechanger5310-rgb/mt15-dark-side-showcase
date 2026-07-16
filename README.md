@@ -1,4 +1,4 @@
-# MT-15 — Dark Side Showcase (Immersive Rebuild v2)
+# MT-15 — Make It Yours (Immersive Rebuild v2)
 
 An unofficial, fan-made showcase for the Yamaha MT-15, built as a demo project.
 Not affiliated with or endorsed by Yamaha Motor Co., Ltd.

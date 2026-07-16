@@ -345,3 +345,87 @@ can_wait: extending AmbientScene beyond the hero into other sections (would
 blocked_on: user visual review (perf + aesthetic feedback) and Phase 5 image
   uploads
 ---
+id: 0005
+date: 2026-07-16 08:05
+claude_id: unspecified
+in_progress: Wired the user's 4 uploaded AI-generated images in as a brand-new
+  colorway set, replacing the old Rebel/Outlaw identity entirely.
+decided: A NEW Claude session (this one) initially misread the situation —
+  only read Trackerfile.txt on `main` (entry 0001), missed that
+  `rebuild/immersive-v2` already existed with entries 0002-0004 and a LIVE
+  gh-pages-preview deploy. Nearly proposed re-scaffolding from scratch on a
+  vanilla HTML/CSS stack. Caught this before writing any code by checking
+  `git branch -a` / `git log` on all branches — corrected course, no work was
+  lost. Lesson for future sessions: `git fetch --all` and check every remote
+  branch's tracker state BEFORE proposing a plan, not just main's.
+decided: User's 4 uploaded images (bows/hearts/paw-prints/"Baby Girl" teal,
+  ice-dragon teal/white, lavender "Girl Princess", deep-purple dragon) do NOT
+  match the photorealistic aggressive-streetfighter prompts written in
+  entry 0004 (prompts/ai-image-prompts.md) — user generated their own
+  different creative direction (stylized/cute personalization skins, not
+  studio photography). This is a full identity pivot, confirmed explicitly
+  with the user: Rebel/Outlaw → personalized/cute. ALL copy referencing
+  "Dark Side," "attack," "predator," "intimidating," "menace" has been
+  removed site-wide (Hero, Philosophy, Specs, Cta, page title/meta). Old
+  prompts/ai-image-prompts.md is now STALE — do not reuse the 5 prompts in
+  that file for future imagery; if more images are needed later, write new
+  prompts matching the personalized/cute direction instead.
+decided: Colorways replaced 3-for-4 (metallic-black/ice-storm-cyan/
+  vivid-violet → teal-baby-girl/ice-dragon/girl-princess/purple-dragon) in
+  src/lib/colorways.ts. Added an `image` field to the Colorway type (didn't
+  exist before). Hex values were SAMPLED from the actual uploaded artwork via
+  a small Python script (resize to 200px wide, filter pixels by
+  saturation>0.35/value 0.25-0.98 to exclude near-black/white/gray, bucket
+  and count) — not guessed. teal-baby-girl default (colorways[0]).
+decided: Images processed with rembg (u2net model, downloaded fine from
+  github.com/danielgatis/rembg release assets — this sandbox's network
+  allowlist covers it) to strip backgrounds (originals were flattened RGB,
+  NOT real transparency, despite looking checkered/white) — cropped to
+  content bbox +3% margin, resized to max-width 1600px, saved as
+  optimized PNG + WebP. Only WebP is actually wired into the site (via
+  next/image, which auto-applies basePath); the PNGs were deleted from
+  web/public/images/ after building once and finding them unused dead
+  weight — cut static export size 11MB → 3.3MB. If a <picture> PNG fallback
+  is ever wanted, re-run the same rembg pipeline (documented below) rather
+  than trying to recover the deleted PNGs from git history.
+decided: Hero.tsx and Colorways.tsx both now render `current.image` from
+  useTheme() via next/image (fill + sizes, object-contain), each with a
+  small GSAP opacity fade keyed off `current.id` changing (skipped on first
+  mount so it doesn't fight the hero's entrance timeline). No R3F/AmbientScene
+  code changed — it already reads --color-glow off the theme vars, so the
+  4 new colorways' glow colors flow through automatically.
+IMAGE REPROCESSING PIPELINE (if new/replacement images are ever uploaded):
+  pip install rembg onnxruntime --break-system-packages
+  python3 -c "
+    from rembg import remove; from PIL import Image; import io
+    raw = open('SOURCE.png','rb').read()
+    im = Image.open(io.BytesIO(remove(raw))).convert('RGBA')
+    bbox = im.getbbox()
+    # crop to bbox +3% margin, resize max-width 1600, save PNG + WEBP(q=90)
+  "
+verified: `npx tsc --noEmit` clean, `npx eslint src --max-warnings 0` clean,
+  `npm run build` succeeds (static export), images confirmed present in
+  `out/images/` post-build.
+NOT verified (same sandbox-has-no-browser caveat as every prior entry):
+  - Whether the GSAP cross-fade on colorway switch actually looks smooth in
+    Hero AND Colorways simultaneously (both fire independently off the same
+    theme change — never watched this happen in a real browser)
+  - Whether next/image's `fill` + `object-contain` sizing looks right at
+    actual viewport sizes / whether the drop-shadow reads well against the
+    new (much lighter/pastel) colorway backgrounds vs. the old dark-only
+    palette the shadow treatment was originally tuned for
+  - Whether the new lighter accent colors (esp. ice-dragon #7de0da, girl-
+    princess #a78bfa) have enough contrast against --color-text for
+    accessibility — not checked with a contrast tool
+next: Rebuild + redeploy to `gh-pages-preview` (documented redeploy process
+  in entry 0003) so the user can actually see this in a browser — did NOT do
+  this yet, waiting on user approval since it overwrites what's currently
+  live. Once approved: cd web && npm run build, then follow entry 0003's
+  redeploy steps exactly (rm -rf gh-pages-preview clone dir, cp out/. over,
+  touch .nojekyll, force-push). After user reviews: fix whatever's off from
+  the "NOT verified" list above.
+can_wait: prompts/ai-image-prompts.md cleanup/rewrite for the new aesthetic —
+  not blocking, only needed if more images get requested later
+blocked_on: user approval to force-push the gh-pages-preview redeploy
+  (this replaces what's currently live at the GitHub Pages URL)
+---

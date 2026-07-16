@@ -69,7 +69,7 @@ export function Specs() {
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div ref={headerRef} className="max-w-xl mb-16 opacity-0">
           <p className="eyebrow text-sm mb-4">Performance</p>
-          <h2 className="heading text-4xl sm:text-5xl">Built to Attack.</h2>
+          <h2 className="heading text-4xl sm:text-5xl">The Numbers That Matter.</h2>
         </div>
 
         <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">

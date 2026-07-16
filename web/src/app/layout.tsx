@@ -4,9 +4,9 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { SmoothScrollProvider } from "@/components/theme/SmoothScrollProvider";
 
 export const metadata: Metadata = {
-  title: "MT-15 — Unleash Your Dark Side",
+  title: "MT-15 — Make It Yours",
   description:
-    "An unofficial, immersive fan showcase of the Yamaha MT-15 — specs, colorways, and the Dark Side of Japan design philosophy.",
+    "An unofficial, immersive fan showcase of the Yamaha MT-15 — specs, and four personalized colorways, each re-tinting the whole site when selected.",
 };
 
 export default function RootLayout({

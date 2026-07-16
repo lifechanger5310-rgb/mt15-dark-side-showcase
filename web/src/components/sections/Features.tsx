@@ -21,7 +21,7 @@ const features = [
   {
     icon: "M12 2a4 4 0 0 0-4 4 4 4 0 0 0 8 0 4 4 0 0 0-4-4ZM6 8a6 6 0 0 0 12 0M12 12v8M9 20h6",
     title: "LED Headlight",
-    desc: "Intimidating stare, front & center.",
+    desc: "Sharp and unmistakable, day or night.",
   },
 ];
 

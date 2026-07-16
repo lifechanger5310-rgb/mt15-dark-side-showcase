@@ -10,7 +10,7 @@ export function Cta() {
       <div ref={ref} className="mx-auto max-w-3xl px-6 lg:px-10 text-center opacity-0">
         <p className="eyebrow text-sm mb-6">Ready When You Are</p>
         <h2 className="heading text-4xl sm:text-5xl lg:text-6xl leading-tight">
-          Your dark side is <span className="text-accent">one ride away.</span>
+          Your next ride is <span className="text-accent">one colorway away.</span>
         </h2>
         <p className="mt-6 text-muted text-lg max-w-xl mx-auto">
           Find a Yamaha dealer near you and book a test ride on the MT-15

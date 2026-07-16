@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { AmbientScene } from "@/components/three/AmbientScene";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -12,6 +14,26 @@ if (typeof window !== "undefined") {
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
   const bikeRef = useRef<HTMLDivElement>(null);
+  const bikeImgWrapRef = useRef<HTMLDivElement>(null);
+  const isFirstColorway = useRef(true);
+  const { current } = useTheme();
+
+  useEffect(() => {
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (isFirstColorway.current || prefersReduced || !bikeImgWrapRef.current) {
+      isFirstColorway.current = false;
+      return;
+    }
+
+    gsap.fromTo(
+      bikeImgWrapRef.current,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.5, ease: "power2.out" }
+    );
+  }, [current.id]);
 
   useEffect(() => {
     const prefersReduced = window.matchMedia(
@@ -79,16 +101,16 @@ export function Hero() {
             Yamaha Hyper Naked · 155cc
           </p>
           <h1 className="hero-heading heading text-[15vw] leading-[0.85] sm:text-7xl lg:text-8xl opacity-0">
-            Unleash
+            Your Bike.
             <br />
-            Your
+            Your Vibe.
             <br />
-            <span className="text-accent">Dark Side.</span>
+            <span className="text-accent">All Yours.</span>
           </h1>
           <p className="hero-sub mt-8 max-w-md text-muted text-lg opacity-0">
-            A compact, aggressive Hyper Naked built to attack every corner of
-            the city. Sharp lines, an intimidating stare, and a chassis
-            that&apos;s ready to pounce — even standing still.
+            A compact, sharp-edged Hyper Naked underneath — bows, hearts,
+            paw prints, or a tiny dragon riding shotgun on top. Pick a
+            colorway below and watch the whole site change with it.
           </p>
           <div className="hero-cta mt-10 flex flex-wrap gap-4 opacity-0">
             <a href="#specs" className="btn-primary">Explore Specs</a>
@@ -97,10 +119,18 @@ export function Hero() {
         </div>
 
         <div ref={bikeRef} className="hero-bike relative opacity-0">
-          <div className="aspect-[4/3] w-full max-w-xl mx-auto flex items-center justify-center">
-            <p className="text-muted text-xs text-center px-8 heading tracking-widest backdrop-blur-sm bg-ink/30 py-3 rounded">
-              Hero image slot — AI-generated MT-15 photo goes here (Phase 5)
-            </p>
+          <div
+            ref={bikeImgWrapRef}
+            className="relative aspect-[4/3] w-full max-w-xl mx-auto"
+          >
+            <Image
+              src={current.image}
+              alt={`Yamaha MT-15 — ${current.name} colorway`}
+              fill
+              sizes="(max-width: 1024px) 90vw, 640px"
+              className="object-contain drop-shadow-[0_30px_60px_rgba(0,0,0,0.5)]"
+              priority
+            />
           </div>
         </div>
       </div>
