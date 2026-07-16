@@ -166,3 +166,66 @@ can_wait: Imagery prompt-writing (Phase 5) — needs Phase 2-4 done first so we 
   final image dimensions/placements
 blocked_on: none
 ---
+id: 0002
+date: 2026-07-16 06:10
+claude_id: unspecified
+in_progress: Phases 1-4 complete — scaffold, theme tokens, core layout all built
+  and pushed to `rebuild/immersive-v2`. `main` untouched (still serves v1 live).
+decided: Next.js app lives in `/web` subfolder (not repo root) — old vanilla
+  files (index.html, dist/, js/, src/, root package.json) removed from THIS
+  BRANCH ONLY (still fully recoverable via `v1-vanilla-showcase` tag)
+decided: Theme system implemented as CSS custom properties on :root, animated
+  via gsap.to(root, {"--color-x": ...}) — Tailwind's @theme block points
+  utilities at the same vars, so bg-ink/text-accent/etc. update live with zero
+  React re-render needed. 3 colorways defined in src/lib/colorways.ts
+  (metallic-black default, ice-storm-cyan, vivid-violet), each carrying a
+  `glow` value the R3F particle layer also reads, so DOM and WebGL retint in
+  sync.
+decided: Ambient WebGL layer (src/components/three/) uses a lightweight
+  particle field, NOT a 3D bike model — matches the imagery-approach decision
+  (real bike representation is 2D AI-generated photos, not 3D geometry).
+  Gated behind IntersectionObserver (only mounts Canvas once near viewport)
+  AND prefers-reduced-motion (renders a static gradient div instead, canvas
+  never mounts at all) — both pitfalls from entry 0001 addressed directly in
+  code, not just noted.
+decided: Lenis synced to GSAP ScrollTrigger via lenis.on("scroll",
+  ScrollTrigger.update) + gsap.ticker — the documented pairing pattern.
+  Sticky-positioning risk (flagged in entry 0001, Locomotive Scroll's known
+  issue) noted inline in SmoothScrollProvider.tsx for Phase 4b verification
+  — NOT YET manually verified in a real browser (this sandbox has no browser;
+  only `next build` was checked, which doesn't catch runtime sticky/scroll
+  bugs). Flagging this explicitly so it isn't assumed done.
+failed_approach: Initial ParticleField used Math.random() inside useMemo —
+  React 19's `react-hooks/purity` ESLint rule flags this as impure-during-render
+  (unstable-results risk). Replaced with a deterministic sine-hash function of
+  the particle index — same scattered visual, passes lint. If touching
+  ParticleField again, do NOT reintroduce Math.random() at the top level of a
+  render-phase function; only call it inside useEffect/event handlers if truly
+  needed.
+failed_approach: create-next-app's default Geist font via next/font/google
+  fails to build in THIS sandbox (no network access to fonts.googleapis.com
+  here) — replaced with standard <link> tags loading Bebas Neue + Inter in
+  layout.tsx <head> instead. This also sidesteps a real prod concern (next/font
+  needs network at build time); a real deploy runner would have network, so
+  next/font/google would have worked there, but the <link> approach is simpler
+  and matches what v1 already used, so keeping it either way.
+verified: `npm run build` succeeds cleanly, `npx tsc --noEmit` clean,
+  `npx eslint src --max-warnings 0` clean.
+NOT verified: no browser was used to actually view the site (sandbox has no
+  browser/Playwright — apt/playwright browser install also blocked by network
+  allowlist). Everything below is UNTESTED visually:
+  - Whether Lenis breaks position:sticky on the Nav bar
+  - Whether the GSAP hero timeline actually looks "Dramatic" and not broken
+  - Whether the particle field renders/looks reasonable and isn't performance-heavy
+  - Whether the color-theme GSAP tween on CSS vars actually interpolates smoothly
+    (GSAP colors CSS custom properties — this SHOULD work per GSAP's docs but
+    has not been visually confirmed)
+next: Deploy this branch's current state to a preview so it can actually be
+  looked at in a real browser (Vercel preview or a temporary GitHub Pages
+  branch deploy) BEFORE writing more code — verifying the untested items above
+  is higher priority than starting Phase 5 (imagery) or Phase 8 (perf pass).
+  If a preview isn't wanted yet, next best step is Phase 5: write the
+  AI-image-generation prompt snippets for the user to run externally.
+can_wait: Phase 9 (Lighthouse/perf pass) — needs real content/images first
+blocked_on: none — but see "NOT verified" above before trusting this looks right
+---

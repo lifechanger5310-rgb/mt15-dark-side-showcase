@@ -1,39 +1,31 @@
-# MT-15 — Dark Side Showcase
+# MT-15 — Dark Side Showcase (Immersive Rebuild v2)
 
-An unofficial, fan-made one-page showcase for the Yamaha MT-15, built as a demo project.
+An unofficial, fan-made showcase for the Yamaha MT-15, built as a demo project.
 Not affiliated with or endorsed by Yamaha Motor Co., Ltd.
+
+**This is the in-progress immersive rebuild.** The original vanilla-JS version
+is preserved at git tag [`v1-vanilla-showcase`](../../tree/v1-vanilla-showcase).
+
+See `Trackerfile.txt` for the full spec, decisions, pitfalls, and step-by-step
+build log — read it before making any changes on this branch.
 
 ## Stack
 
-- **Styling:** Tailwind CSS v4 (CSS-first `@theme` config) + plain HTML/JS — no framework, no bundler
-- **Motion:** GSAP 3.15 + ScrollTrigger, `gsap.matchMedia()` for `prefers-reduced-motion`
-- **Layout:** Marketing/landing pattern, Tailwind default breakpoints + container-query-ready, 44px touch targets
-
-## Design identity
-
-- **Archetype:** Rebel/Outlaw
-- **Palette:** near-black `#0B0B0E` base, electric cyan `#00D9FF` accent (echoes the real MT-15's Ice Storm Cyan colorway)
-- **Type:** Bebas Neue (headings) + Inter (body)
-
-## Motion intensity
-
-- **Tier:** Dramatic (0.6–1.2s, `back.out` / `elastic.out`)
-- **ScrollTrigger:** `scrub: true` reserved for the hero centerpiece parallax; discrete reveals everywhere else
-- **Reduced motion:** fully disabled via `gsap.matchMedia()` — content appears in its end state instantly
-- **Stagger:** light (0.05–0.1s) on grouped elements (spec cards, feature cards, color swatches)
+- Next.js + TypeScript + React (app lives in `/web`)
+- Tailwind CSS v4 (CSS-first `@theme`, runtime-overridable CSS vars for theming)
+- GSAP + ScrollTrigger (Dramatic-tier motion, discrete reveals + one scrub hero moment)
+- Lenis (smooth scroll, synced to ScrollTrigger)
+- React Three Fiber + drei (ambient WebGL particle/glow layer, lazy-mounted)
 
 ## Local development
 
 ```bash
+cd web
 npm install
-npx @tailwindcss/cli -i ./src/input.css -o ./dist/output.css --watch
+npm run dev
 ```
-
-Then open `index.html` directly, or serve the folder with any static server.
 
 ## Notes
 
-- The motorcycle illustration is an original stylized line-art SVG, not a photograph — no real
-  product imagery is used, to avoid any copyright/trademark issue with official Yamaha photography.
-- Specs shown are illustrative and sourced from public reporting; verify with an authorized dealer
-  before relying on them.
+- Imagery is AI-generated (not official Yamaha photography) — see Trackerfile.txt Phase 5.
+- Full site color theme dynamically re-tints based on the selected MT-15 colorway.

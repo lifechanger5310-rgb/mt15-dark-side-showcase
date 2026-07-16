@@ -1,9 +1,14 @@
 @import "tailwindcss";
 
-@theme {
-  --font-heading: "Bebas Neue", sans-serif;
-  --font-body: "Inter", sans-serif;
-
+/* ---------------------------------------------------------------
+   Runtime theme variables. These are the SOURCE OF TRUTH — the
+   ThemeProvider (src/components/theme/ThemeProvider.tsx) mutates
+   these directly on :root via GSAP color tweens when a colorway is
+   selected. Tailwind's @theme block below just points utilities at
+   these same variables, so every `bg-ink` / `text-accent` / etc.
+   utility updates live when the theme changes — no re-render needed.
+   ----------------------------------------------------------------- */
+:root {
   --color-ink: #0b0b0e;
   --color-panel: #17171c;
   --color-panel-light: #202027;
@@ -11,9 +16,20 @@
   --color-accent-dim: #00a8c7;
   --color-text: #f2f2f2;
   --color-muted: #8a8a92;
-  --color-violet: #8b5cf6;
+  --color-glow: #00d9ff;
+}
 
-  --breakpoint-xs: 24rem;
+@theme {
+  --font-heading: "Bebas Neue", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  --color-ink: var(--color-ink);
+  --color-panel: var(--color-panel);
+  --color-panel-light: var(--color-panel-light);
+  --color-accent: var(--color-accent);
+  --color-accent-dim: var(--color-accent-dim);
+  --color-text: var(--color-text);
+  --color-muted: var(--color-muted);
 }
 
 @layer base {
@@ -22,9 +38,6 @@
   }
 
   body {
-    background-color: var(--color-ink);
-    color: var(--color-text);
-    font-family: var(--font-body);
     overflow-x: hidden;
   }
 
@@ -83,8 +96,8 @@
 
   .grid-lines {
     background-image:
-      linear-gradient(to right, rgba(0, 217, 255, 0.06) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(0, 217, 255, 0.06) 1px, transparent 1px);
+      linear-gradient(to right, color-mix(in srgb, var(--color-accent) 6%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 6%, transparent) 1px, transparent 1px);
     background-size: 48px 48px;
   }
 }
